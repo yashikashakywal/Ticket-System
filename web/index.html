@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ticket Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EEF1EA;
+    --paper-raised: #F7F9F4;
+    --ink: #1C1D19;
+    --ink-soft: #55584E;
+    --line: #C9CDBE;
+    --maroon: #7A3030;
+    --maroon-dark: #5E2323;
+    --open: #B7791F;
+    --open-bg: #FBF0DC;
+    --progress: #2B4C6F;
+    --progress-bg: #E2EAF1;
+    --closed: #3F6B4A;
+    --closed-bg: #E4EDE4;
+    --danger: #9C3B3B;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .brand, button, .tab {
+    font-family: 'Roboto Slab', serif;
+  }
+
+  .ticket-id {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  a { color: inherit; }
+
+  .app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header.topbar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 22px clamp(18px, 4vw, 48px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  header.topbar .brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  header.topbar .brand span {
+    color: var(--maroon);
+  }
+
+  .session-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  .session-info button {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .session-info button:hover { border-color: var(--ink); }
+
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: clamp(24px, 5vw, 56px) 20px 80px;
+  }
+
+  /* ---------- Auth screen ---------- */
+
+  .auth-wrap {
+    display: flex;
+    min-height: calc(100vh - 40px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 36px 32px 32px;
+  }
+
+  .auth-card h1 {
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+  }
+
+  .auth-card h1 span { color: var(--maroon); }
+
+  .auth-card .tagline {
+    margin: 0 0 26px;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tab {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--maroon);
+  }
+
+  form { display: flex; flex-direction: column; gap: 14px; }
+
+  label {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  input, textarea {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--ink);
+  }
+
+  input:focus, textarea:focus, button:focus-visible {
+    outline: 2px solid var(--progress);
+    outline-offset: 1px;
+  }
+
+  textarea { resize: vertical; min-height: 64px; font-family: 'Inter', sans-serif; }
+
+  .btn-primary {
+    background: var(--maroon);
+    color: #fff;
+    border: none;
+    padding: 11px 16px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  .btn-primary:hover { background: var(--maroon-dark); }
+  .btn-primary:disabled { opacity: 0.6; cursor: default; }
+
+  .btn-secondary {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Roboto Slab', serif;
+  }
+
+  .btn-secondary:hover { border-color: var(--progress); color: var(--progress); }
+
+  .field-error {
+    color: var(--danger);
+    font-size: 0.83rem;
+    min-height: 1.1em;
+  }
+
+  /* ---------- Dashboard ---------- */
+
+  section.composer {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 22px 24px 24px;
+    margin-bottom: 34px;
+  }
+
+  section.composer h2 {
+    margin: 0 0 16px;
+    font-size: 1.05rem;
+  }
+
+  .composer-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .composer-row .btn-primary { margin-top: 24px; white-space: nowrap; }
+
+  .tickets-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .tickets-head h2 { margin: 0; font-size: 1.05rem; }
+  .tickets-head span { color: var(--ink-soft); font-size: 0.85rem; }
+
+  .empty-state {
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    padding: 32px 24px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .ticket-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .ticket-stub {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    animation: stub-in 0.32s ease both;
+  }
+
+  @keyframes stub-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .stub-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .stub-meta .ticket-id { color: var(--ink); font-size: 0.85rem; }
+
+  .stub-perforation {
+    border-top: 1px dashed var(--line);
+    position: relative;
+  }
+
+  .stub-body {
+    padding: 16px 18px 18px;
+  }
+
+  .stub-body h3 {
+    margin: 0 0 6px;
+    font-size: 1.02rem;
+    font-weight: 600;
+  }
+
+  .stub-body p {
+    margin: 0 0 14px;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  .stub-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .status-open   { background: var(--open-bg);     color: var(--open); }
+  .status-in_progress { background: var(--progress-bg); color: var(--progress); }
+  .status-closed { background: var(--closed-bg);   color: var(--closed); }
+
+  .stub-footer .btn-secondary { margin-left: auto; }
+  .stub-footer .closed-note { color: var(--ink-soft); font-size: 0.82rem; font-style: italic; }
+
+  .banner {
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    margin-bottom: 18px;
+  }
+
+  .banner.error { background: #FBEAEA; color: var(--danger); border: 1px solid #E9C6C6; }
+  .banner.success { background: var(--closed-bg); color: var(--closed); border: 1px solid #CBDECB; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 480px) {
+    .composer-row { flex-direction: column; }
+    .composer-row .btn-primary { margin-top: 0; width: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticket-stub { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- AUTH SCREEN -->
+  <div id="auth-screen" class="auth-wrap">
+    <div class="auth-card">
+      <h1>Ticket <span>Desk</span></h1>
+      <p class="tagline">Log in to file a ticket or check on one you already opened.</p>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="login" type="button">Log in</button>
+        <button class="tab" data-tab="register" type="button">Register</button>
+      </div>
+
+      <div id="auth-banner"></div>
+
+      <form id="login-form">
+        <label>Email
+          <input type="email" id="login-email" autocomplete="username" required />
+        </label>
+        <label>Password
+          <input type="password" id="login-password" autocomplete="current-password" required />
+        </label>
+        <button class="btn-primary" type="submit">Log in</button>
+      </form>
+
+      <form id="register-form" class="hidden">
+        <label>Email
+          <input type="email" id="register-email" autocomplete="username" required />
+        </label>
+        <label>Password
+          <input type="password" id="register-password" autocomplete="new-password" minlength="6" required />
+          <span class="field-error" id="register-password-hint">At least 6 characters.</span>
+        </label>
+        <button class="btn-primary" type="submit">Create account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard-screen" class="hidden">
+    <header class="topbar">
+      <div class="brand">Ticket <span>Desk</span></div>
+      <div class="session-info">
+        <span id="session-email"></span>
+        <button id="logout-btn" type="button">Log out</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="dashboard-banner"></div>
+
+      <section class="composer">
+        <h2>File a new ticket</h2>
+        <form id="create-form">
+          <label>Title
+            <input type="text" id="ticket-title" placeholder="What's broken?" required />
+          </label>
+          <label>Description
+            <textarea id="ticket-description" placeholder="Any detail that would help (optional)"></textarea>
+          </label>
+          <div class="composer-row">
+            <button class="btn-primary" type="submit">Create ticket</button>
+          </div>
+        </form>
+      </section>
+
+      <div class="tickets-head">
+        <h2>Your tickets</h2>
+        <span id="ticket-count"></span>
+      </div>
+
+      <div id="ticket-list" class="ticket-list"></div>
+      <div id="empty-state" class="empty-state hidden">
+        No tickets yet. File one above and it'll show up here.
+      </div>
+    </main>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "ticket_desk_token";
+  var STORAGE_EMAIL_KEY = "ticket_desk_email";
+
+  var authScreen = document.getElementById("auth-screen");
+  var dashboardScreen = document.getElementById("dashboard-screen");
+
+  var tabs = document.querySelectorAll(".tab");
+  var loginForm = document.getElementById("login-form");
+  var registerForm = document.getElementById("register-form");
+  var authBanner = document.getElementById("auth-banner");
+
+  var sessionEmail = document.getElementById("session-email");
+  var logoutBtn = document.getElementById("logout-btn");
+  var createForm = document.getElementById("create-form");
+  var dashboardBanner = document.getElementById("dashboard-banner");
+  var ticketList = document.getElementById("ticket-list");
+  var ticketCount = document.getElementById("ticket-count");
+  var emptyState = document.getElementById("empty-state");
+
+  // Next allowed status in the required flow: open -> in_progress -> closed.
+  var NEXT_STATUS = { open: "in_progress", in_progress: "closed" };
+  var STATUS_LABEL = { open: "Open", in_progress: "In progress", closed: "Closed" };
+  var ADVANCE_LABEL = { open: "Start progress", in_progress: "Close ticket" };
+
+  function token() { return localStorage.getItem(STORAGE_KEY); }
+  function setSession(tok, email) {
+    localStorage.setItem(STORAGE_KEY, tok);
+    localStorage.setItem(STORAGE_EMAIL_KEY, email || "");
+  }
+  function clearSession() {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_EMAIL_KEY);
+  }
+
+  function showBanner(el, message, kind) {
+    if (!message) { el.innerHTML = ""; return; }
+    el.innerHTML = '<div class="banner ' + (kind || "error") + '">' + escapeHtml(message) + "</div>";
+  }
+
+  function escapeHtml(s) {
+    var div = document.createElement("div");
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  async function api(path, options) {
+    options = options || {};
+    var headers = options.headers || {};
+    headers["Content-Type"] = "application/json";
+    var tok = token();
+    if (tok) headers["Authorization"] = "Bearer " + tok;
+
+    var res = await fetch(path, {
+      method: options.method || "GET",
+      headers: headers,
+      body: options.body ? JSON.stringify(options.body) : undefined
+    });
+
+    var data = null;
+    try { data = await res.json(); } catch (e) { /* no body */ }
+
+    if (!res.ok) {
+      var message = (data && data.error) || ("Request failed (" + res.status + ")");
+      var err = new Error(message);
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  // ---------- Auth screen wiring ----------
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) { t.classList.remove("active"); });
+      tab.classList.add("active");
+      showBanner(authBanner, "");
+      if (tab.dataset.tab === "login") {
+        loginForm.classList.remove("hidden");
+        registerForm.classList.add("hidden");
+      } else {
+        registerForm.classList.remove("hidden");
+        loginForm.classList.add("hidden");
+      }
+    });
+  });
+
+  loginForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    showBanner(authBanner, "");
+    var email = document.getElementById("login-email").value.trim();
+    var password = document.getElementById("login-password").value;
+    try {
+      var data = await api("/auth/login", { method: "POST", body: { email: email, password: password } });
+      setSession(data.token, email);
+      await enterDashboard();
+    } catch (err) {
+      showBanner(authBanner, err.message);
+    }
+  });
+
+  registerForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    showBanner(authBanner, "");
+    var email = document.getElementById("register-email").value.trim();
+    var password = document.getElementById("register-password").value;
+    try {
+      await api("/auth/register", { method: "POST", body: { email: email, password: password } });
+      var data = await api("/auth/login", { method: "POST", body: { email: email, password: password } });
+      setSession(data.token, email);
+      await enterDashboard();
+    } catch (err) {
+      showBanner(authBanner, err.message);
+    }
+  });
+
+  logoutBtn.addEventListener("click", function () {
+    clearSession();
+    showBanner(dashboardBanner, "");
+    dashboardScreen.classList.add("hidden");
+    authScreen.classList.remove("hidden");
+    loginForm.reset();
+  });
+
+  // ---------- Dashboard wiring ----------
+
+  createForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    showBanner(dashboardBanner, "");
+    var title = document.getElementById("ticket-title").value.trim();
+    var description = document.getElementById("ticket-description").value.trim();
+    var submitBtn = createForm.querySelector("button[type=submit]");
+    submitBtn.disabled = true;
+    try {
+      await api("/tickets", { method: "POST", body: { title: title, description: description } });
+      createForm.reset();
+      await loadTickets();
+    } catch (err) {
+      showBanner(dashboardBanner, err.message);
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  function formatDate(iso) {
+    try {
+      var d = new Date(iso);
+      return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    } catch (e) { return iso; }
+  }
+
+  function renderTickets(tickets) {
+    ticketList.innerHTML = "";
+    ticketCount.textContent = tickets.length ? (tickets.length + (tickets.length === 1 ? " ticket" : " tickets")) : "";
+    emptyState.classList.toggle("hidden", tickets.length > 0);
+
+    tickets.forEach(function (t) {
+      var stub = document.createElement("article");
+      stub.className = "ticket-stub";
+
+      var next = NEXT_STATUS[t.status];
+      var footerRight = "";
+      if (next) {
+        footerRight = '<button class="btn-secondary" data-advance="' + t.id + '" data-next="' + next + '">' +
+          ADVANCE_LABEL[t.status] + "</button>";
+      } else {
+        footerRight = '<span class="closed-note">No further action</span>';
+      }
+
+      stub.innerHTML =
+        '<div class="stub-meta">' +
+          '<span class="ticket-id">#' + escapeHtml(t.id) + "</span>" +
+          "<span>" + formatDate(t.created_at) + "</span>" +
+        "</div>" +
+        '<div class="stub-perforation"></div>' +
+        '<div class="stub-body">' +
+          "<h3>" + escapeHtml(t.title) + "</h3>" +
+          (t.description ? "<p>" + escapeHtml(t.description) + "</p>" : "") +
+          '<div class="stub-footer">' +
+            '<span class="status-pill status-' + t.status + '">' + STATUS_LABEL[t.status] + "</span>" +
+            footerRight +
+          "</div>" +
+        "</div>";
+
+      ticketList.appendChild(stub);
+    });
+
+    ticketList.querySelectorAll("[data-advance]").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        btn.disabled = true;
+        showBanner(dashboardBanner, "");
+        try {
+          await api("/tickets/" + btn.dataset.advance + "/status", {
+            method: "PATCH",
+            body: { status: btn.dataset.next }
+          });
+          await loadTickets();
+        } catch (err) {
+          showBanner(dashboardBanner, err.message);
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  async function loadTickets() {
+    try {
+      var tickets = await api("/tickets");
+      tickets.sort(function (a, b) { return new Date(b.created_at) - new Date(a.created_at); });
+      renderTickets(tickets);
+    } catch (err) {
+      if (err.status === 401) { return logoutAndShowAuth(); }
+      showBanner(dashboardBanner, err.message);
+    }
+  }
+
+  function logoutAndShowAuth() {
+    clearSession();
+    dashboardScreen.classList.add("hidden");
+    authScreen.classList.remove("hidden");
+  }
+
+  async function enterDashboard() {
+    authScreen.classList.add("hidden");
+    dashboardScreen.classList.remove("hidden");
+    sessionEmail.textContent = localStorage.getItem(STORAGE_EMAIL_KEY) || "";
+    await loadTickets();
+  }
+
+  // ---------- Boot ----------
+
+  if (token()) {
+    enterDashboard();
+  } else {
+    authScreen.classList.remove("hidden");
+  }
+})();
+</script>
+</body>
+</html>
