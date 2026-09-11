@@ -174,9 +174,9 @@ open -> in_progress -> closed
 
 ## Deployment
 
-- **GitHub repository:** _add link here_
-- **Deployed application URL:** _add link here_
-- **Public health check URL:** _add link here_ (`<deployed-url>/health`)
+- **GitHub repository:** https://github.com/yashikashakywal/Ticket-System)
+- **Deployed application URL:** https://ticket-system-qoxg.onrender.com/)
+- **Public health check URL:** https://ticket-system-qoxg.onrender.com/health
 
 Any free-tier platform that can run a Docker image or a Go binary works
 (e.g. Render, Railway, Fly.io, Koyeb). The general steps are:
