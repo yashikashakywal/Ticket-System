@@ -120,7 +120,9 @@ JWTs are valid for 24 hours from issuance; there is no refresh-token flow since 
 No pagination is implemented on GET /tickets, since the brief doesn't request it and ticket volume per user is expected to be small.
 Deployment
 GitHub repository: https://github.com/yashikashakywal/Ticket-System
+
 Deployed application URL: https://ticket-system-qoxg.onrender.com
+
 Public health check URL: https://ticket-system-qoxg.onrender.com/health
 
 Any free-tier platform that can run a Docker image or a Go binary works (e.g. Render, Railway, Fly.io, Koyeb). The general steps are:
